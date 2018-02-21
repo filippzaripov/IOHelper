@@ -5,9 +5,6 @@ import interfaces.IOHelper;
 import java.io.*;
 import java.nio.charset.Charset;
 
-//TODO: implement IOHelper interface
-//TODO: write tests
-
 public class IOHelperImpl implements IOHelper {
 
     @Override
@@ -30,10 +27,10 @@ public class IOHelperImpl implements IOHelper {
     @Override
     public String readFile(File file, String encoding) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding))) {
-           StringBuilder result = new StringBuilder("");
+            StringBuilder result = new StringBuilder("");
             String currentLine = null;
             while ((currentLine = reader.readLine()) != null) {
-                result.append(currentLine) ;
+                result.append(currentLine);
             }
             return result.toString();
         }
@@ -47,17 +44,15 @@ public class IOHelperImpl implements IOHelper {
 
     @Override
     public void writeFile(File file, String content, String encoding, boolean append) throws IOException {
-        Charset localEncoding;
-        OutputStreamWriter outputStream;
+        OutputStreamWriter outputStreamWriter;
         if (encoding == null) {
-            localEncoding = Charset.defaultCharset();
-            outputStream = new OutputStreamWriter(new FileOutputStream(file), localEncoding);
+            outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file, append), Charset.defaultCharset());
         } else {
-            outputStream = new OutputStreamWriter(new FileOutputStream(file), encoding);
+            outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file, append), encoding);
         }
-        try (Writer writer = outputStream) {
+        try (Writer writer = outputStreamWriter) {
             if (append) {
-                writer.append(content);
+                writer.write(content);
             } else {
                 writer.write(content);
             }
