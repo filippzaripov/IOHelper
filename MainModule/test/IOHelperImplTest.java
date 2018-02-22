@@ -14,33 +14,33 @@ public class IOHelperImplTest extends TestCase {
     @Test
     public void testCopyStream() throws IOException {
         File testOut = File.createTempFile("testOut", null, new File("C:/test/"));
-        try (InputStream in = ioHelper.createInputStream(testString);
-             OutputStream out = new FileOutputStream(testOut)) {
-            long bytes = 0;
-            bytes = ioHelper.copy(in, out);
-            testOut.delete();
-            assertNotEquals(0, bytes);
-        }
-
+        long bytes = 0;
+        OutputStream outputStream = new FileOutputStream(testOut);
+        bytes = ioHelper.copy(ioHelper.createInputStream(testString), outputStream);
+        outputStream.close();
+        testOut.delete();
+        assertNotEquals(0, bytes);
     }
 
     @Test
     public void testCopyFile() throws IOException {
+        long bytes = 0;
         File testIn = File.createTempFile("testIn", null, new File("C:/test/"));
         File testOut = File.createTempFile("testOut", null, new File("C:/test/"));
         ioHelper.writeFile(testIn, testString, null, false);
-        long bytes = ioHelper.copy(testIn, testOut);
-        assertNotEquals(0, bytes);
+        bytes = ioHelper.copy(testIn, testOut);
         testIn.delete();
         testOut.delete();
+        assertNotEquals(0, bytes);
     }
 
     @Test
     public void testReadFile() throws IOException {
         File testIn = File.createTempFile("testIn", null, new File("C:/test/"));
         ioHelper.writeFile(testIn, testString, null, false);
-        assertEquals(testString, ioHelper.readFile(testIn));
+        String result = ioHelper.readFile(testIn);
         testIn.delete();
+        assertEquals(testString, result);
     }
 
     @Test
@@ -67,19 +67,19 @@ public class IOHelperImplTest extends TestCase {
         StringBuilder finalString = new StringBuilder("");
         finalString.insert(0, ioHelper.readFile(testOut));
         testOut.delete();
-        assertEquals(testString+testString, finalString.toString());
+        assertEquals(testString + testString, finalString.toString());
     }
 
     @Test
     public void testCreateInputStream() throws IOException {
-       try(InputStream in = ioHelper.createInputStream(testString)){
-           int c;
-           String result = null;
-           while ((c = in.read()) != -1) {
-               result += c;
-           }
-           assertNotNull(result);
-       }
+        try (InputStream in = ioHelper.createInputStream(testString)) {
+            int c;
+            String result = null;
+            while ((c = in.read()) != -1) {
+                result += c;
+            }
+            assertNotNull(result);
+        }
     }
 
     @Test

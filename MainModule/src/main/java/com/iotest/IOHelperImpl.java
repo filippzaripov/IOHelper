@@ -20,7 +20,10 @@ public class IOHelperImpl implements IOHelper {
 
     @Override
     public long copy(File source, File target) throws IOException {
-        return copy(new FileInputStream(source), new FileOutputStream(target));
+        try(InputStream inputStream = new FileInputStream(source);
+        OutputStream outputStream = new FileOutputStream(target)){
+            return copy(inputStream, outputStream);
+        }
     }
 
 
