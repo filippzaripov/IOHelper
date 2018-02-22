@@ -5,10 +5,8 @@ import interfaces.IOHelper;
 import java.io.*;
 import java.nio.charset.Charset;
 
-//TODO: implement IOHelper interface
-//TODO: write tests
-
 public class IOHelperImpl implements IOHelper {
+
     @Override
     public long copy(InputStream in, OutputStream out) throws IOException {
         long amount = 0;
@@ -17,68 +15,47 @@ public class IOHelperImpl implements IOHelper {
             out.write(c);
             amount++;
         }
-        in.close();
-        out.close();
         return amount;
     }
 
     @Override
     public long copy(File source, File target) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(source));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(target))) {
-            int c;
-            long amount = 0;
-            if (target.canWrite()) {
-                while ((c = reader.read()) != -1) {
-                    writer.write(c);
-                    amount++;
-                }
-            } else {
-                return -1;
-            }
-            return amount;
+        try(InputStream inputStream = new FileInputStream(source);
+        OutputStream outputStream = new FileOutputStream(target)){
+            return copy(inputStream, outputStream);
         }
     }
 
-    @Override
-    public String readFile(File file) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.defaultCharset()))) {
-            String result = "";
-            String currentLine = null;
-            while ((currentLine = reader.readLine()) != null) {
-                result += currentLine;
-            }
-            return result;
-        }
-    }
 
     @Override
     public String readFile(File file, String encoding) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding))) {
-            String result = "";
+            StringBuilder result = new StringBuilder("");
             String currentLine = null;
             while ((currentLine = reader.readLine()) != null) {
-                result += currentLine;
+                result.append(currentLine);
             }
-            return result;
+            return result.toString();
         }
 
     }
 
+    @Override
+    public String readFile(File file) throws IOException {
+        return readFile(file, Charset.defaultCharset().toString());
+    }
 
     @Override
     public void writeFile(File file, String content, String encoding, boolean append) throws IOException {
-        Charset localEncoding;
-        OutputStreamWriter outputStream;
+        OutputStreamWriter outputStreamWriter;
         if (encoding == null) {
-            localEncoding = Charset.defaultCharset();
-            outputStream = new OutputStreamWriter(new FileOutputStream(file), localEncoding);
+            outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file, append), Charset.defaultCharset());
         } else {
-            outputStream = new OutputStreamWriter(new FileOutputStream(file), encoding);
+            outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file, append), encoding);
         }
-        try (Writer writer = outputStream) {
+        try (Writer writer = outputStreamWriter) {
             if (append) {
-                writer.append(content);
+                writer.write(content);
             } else {
                 writer.write(content);
             }
